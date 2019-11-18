@@ -1,4 +1,11 @@
+/**
+ *  Author: topcss
+ * version: v1.0
+ *    Time: 2019-11-18
+ * Website: https://github.com/topcss/
+ */
 
+//#region Common
 function loadStyles (url) {
   var link = document.createElement("link");
   link.rel = "stylesheet";
@@ -14,7 +21,7 @@ function createEl (className, name = 'div') {
   return el
 }
 
-function createButton (src, className) {
+function createButton (src, className = '') {
   let img = createEl('', 'img')
   img.src = getPath("icons/" + src + ".svg")
 
@@ -30,8 +37,53 @@ function createButton (src, className) {
 }
 
 function getPath (filePath) {
-  return "https://topcss.github.io/EvernoteExtension/" + filePath;
+  // publish
+  // return "https://topcss.github.io/EvernoteExtension/" + filePath;
+  // dev
+  return filePath
 }
+
+// 新窗口打开
+function openPage (url, param) {
+  var form = '<form action="' + url + '"  target="_blank"  id="windowOpen" style="display:none">';
+  for (var key in param) {
+    form += '<input name="' + key + '" value="' + param[key] + '"/>';
+  }
+  form += '</form>';
+  document.querySelector('body').insertAdjacentHTML('afterend', form);
+  document.querySelector('#windowOpen').submit();
+  document.querySelector('#windowOpen').remove();
+}
+
+// 处理图片粘贴问题
+function pasteImage (event) {
+  if (event.clipboardData || event.originalEvent) {
+    var clipboardData = (event.clipboardData || event.originalEvent.clipboardData);
+    if (clipboardData.items) {
+      var items = clipboardData.items,
+        len = items.length,
+        blob = null;
+      for (var i = 0; i < len; i++) {
+        if (items[i].type.indexOf("image") !== -1) {
+          blob = items[i].getAsFile();
+        }
+      }
+      if (blob !== null) {
+        var reader = new FileReader();
+        reader.onload = function (event) {
+          var base64_str = event.target.result;
+
+          tinymce.activeEditor.insertContent('<img src="' + base64_str + '">')
+        }
+        reader.readAsDataURL(blob);
+      }
+    }
+  }
+}
+
+//#endregion
+
+//#region Controls
 
 class BaseButton {
   constructor() {
@@ -117,6 +169,47 @@ class HightlightButton extends BaseButton {
   }
 }
 
+class PreviewButton extends BaseButton {
+  constructor() {
+    super()
+
+    this.render()
+  }
+  render () {
+    this.el = createButton('print')
+    this.el.addEventListener('click', this.preview)
+  }
+  preview () {
+    try {
+      let html = document.querySelector('.mce-container iframe').contentDocument.body.innerHTML;
+      var mainView = window.open('', "mainView");
+      var doc = mainView.document;
+      doc.write(html);
+      doc.close();
+    } catch (error) {
+      alert(error);
+      console.log(error);
+    }
+  }
+}
+
+class HelpButton extends BaseButton {
+  constructor() {
+    super()
+
+    this.render()
+  }
+  render () {
+    this.el = createButton('help')
+    this.el.addEventListener('click', this.gotohelp)
+  }
+  gotohelp () {
+    var url = 'https://github.com/topcss/EvernoteExtension'
+    var param = { rd: 1 };
+    openPage(url, param);
+  }
+}
+
 class dividerButton extends BaseButton {
   constructor() {
     super()
@@ -145,7 +238,9 @@ class Toolbar {
     this.buttons.appendChild(btn.el)
   }
 }
+//#endregion
 
+//#region Main
 class Subject {
   constructor() {
     this.subs = [];
@@ -186,6 +281,18 @@ function addToolbar () {
   var highlightBtn = new HightlightButton()
   toolbar.addButton(highlightBtn)
 
+  // 分隔符
+  var dividerBtn = new dividerButton()
+  toolbar.addButton(dividerBtn)
+
+  // 打印预览
+  var previewBtn = new PreviewButton()
+  toolbar.addButton(previewBtn)
+
+  // 帮助
+  var helpBtn = new HelpButton()
+  toolbar.addButton(helpBtn)
+
   // 加入观察
   subject.addSub(undoBtn)
   subject.addSub(redoBtn)
@@ -196,27 +303,18 @@ function addToolbar () {
   // 追加到 body
   document.getElementsByTagName('body')[0].appendChild(toolbar.el)
 
-  // tb.appendChild(createButton('redo'))
-  // tb.appendChild(createButton('undo', 'disabled'))
-  // toolbar.appendChild(createEl('toolbar-button-divider'))
-  // toolbar.appendChild(createButton('brush', 'checked'))
-  // toolbar.appendChild(createButton('fold'))
-  // toolbar.appendChild(createButton('unfold'))
-  // toolbar.appendChild(createEl('toolbar-button-divider'))
-  // toolbar.appendChild(createButton('highlight'))
-
-  tinymce.activeEditor.on("NodeChange", function (e) {
+  tinymce.activeEditor.on("NodeChange", () => {
     subject.notify()
+  })
+
+  tinymce.activeEditor.on("Paste", (event) => {
+    pasteImage(event)
   });
 }
-
-// var editor = tinyMCE.activeEditor;
-
-// tinyMCE.activeEditor.undoManager.hasRedo()
-
 
 setTimeout(function () {
 
   addToolbar();
 
 }, 1000)
+//#endregion

@@ -1,0 +1,128 @@
+body {
+  background: #f8f8f8;
+}
+html,
+body,
+div,
+ul,
+li,
+a {
+  padding: 0;
+  margin: 0;
+}
+
+.toolbar-wrapper {
+  width: 100%;
+  text-align: center;
+  z-index: 3999;
+  /* height: 46px; */
+  /* padding-top: 8px;
+  padding-bottom: 8px; */
+  box-sizing: border-box;
+  -webkit-transition: box-shadow 0.3s ease-in-out;
+  transition: box-shadow 0.3s ease-in-out;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.toolbar-container {
+  display: -webkit-box;
+  display: flex;
+  height: 30px;
+  -webkit-box-pack: center;
+  justify-content: center;
+  /* margin-right: 100px;
+  margin-left: 100px; */
+}
+
+.dui-badge {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  display: inline-block;
+}
+
+.toolbar-buttons {
+  display: -webkit-box;
+  display: flex;
+  flex-wrap: wrap;
+  white-space: nowrap;
+  overflow: hidden;
+  -webkit-box-pack: end;
+  justify-content: flex-end;
+}
+
+.toolbar-button-divider {
+  margin-left: 7px;
+  margin-right: 7px;
+  height: 14px;
+  width: 1px;
+  opacity: 0.08;
+  background-color: #000000;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  vertical-align: top;
+  -webkit-transition: all 100ms ease-in;
+  transition: all 100ms ease-in;
+  display: inline-block;
+}
+.toolbar-button-wrapper {
+  height: 26px;
+  border: 1px solid transparent;
+  background: rgba(0, 0, 0, 0);
+  border-radius: 1px;
+  margin-left: 5px;
+  margin-right: 5px;
+  display: inline-block;
+  vertical-align: bottom;
+}
+.toolbar-button-wrapper:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+.toolbar-button-wrapper.checked,
+.toolbar-button-wrapper.checked:hover {
+  background: rgba(0, 0, 0, 0.12);
+}
+.toolbar-button-wrapper:active,
+.toolbar-button-wrapper:active:hover {
+  background: rgba(0, 0, 0, 0.12);
+}
+.toolbar-button-wrapper.disabled {
+  opacity: 0.2;
+}
+.toolbar-button-icon-container {
+  height: 22px;
+  width: 22px;
+  margin: 2px;
+  background: rgba(0, 0, 0, 0);
+  vertical-align: top;
+  display: inline-block;
+}
+.toolbar-button-color-picker-icon {
+  height: 18px;
+  width: 22px;
+  background: rgba(0, 0, 0, 0);
+  box-sizing: content-box;
+  display: block;
+}
+.toolbar-button-color-picker-indication {
+  height: 2px;
+  width: 14px;
+  margin-left: 4px;
+  background-color: #ff0000;
+  display: block;
+}
+
+.toolbar-wrapper{
+  position: absolute;
+  right: 245px;
+  top: 12px;
+  border: 1px solid #c4c4c4;
+  border-radius: 4px;
+  width: auto;
+  min-width: 30px;
+  padding: 2px 0;
+}

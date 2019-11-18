@@ -27,7 +27,9 @@
 
 3.1 把下面这个超链接，拖入书签栏。然后，在印象笔记网页中，点击该书签即可使用提供的新功能。
 
+<code>
 <a href="javascript:void (function(d) {var e = d.createElement('script');e.byebj=true;e.src = 'https://topcss.github.io/EvernoteExtension/main.js';var b = d.getElementsByTagName('body')[0];b.firstChild ? b.insertBefore(e, b.firstChild) : b.appendChild(e);}(document));">❤印象笔记插件</a>
+</code>
 
 3.2 手动加入收藏栏
 

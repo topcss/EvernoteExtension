@@ -38,9 +38,9 @@ function createButton (src, className = '') {
 
 function getPath (filePath) {
   // publish
-  // return "https://topcss.github.io/EvernoteExtension/" + filePath;
+  return "https://topcss.github.io/EvernoteExtension/" + filePath;
   // dev
-  return filePath
+  // return filePath
 }
 
 // 新窗口打开

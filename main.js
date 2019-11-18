@@ -16,7 +16,7 @@ function createEl (className, name = 'div') {
 
 function createButton (src, className) {
   let img = createEl('', 'img')
-  img.src = "icons/" + src + ".svg"
+  img.src = getPath("icons/" + src + ".svg")
 
   let tbic = createEl('toolbar-button-icon-container')
   let db = createEl('dui-badge', 'span')
@@ -29,6 +29,9 @@ function createButton (src, className) {
   return tbw
 }
 
+function getPath (filePath) {
+  return "https://topcss.github.io/EvernoteExtension/" + filePath;
+}
 
 class BaseButton {
   constructor() {
@@ -188,8 +191,7 @@ function addToolbar () {
   subject.addSub(redoBtn)
 
   // 载入css
-  loadStyles('https://topcss.github.io/EvernoteExtension/style.css')
-  // loadStyles('style.css')
+  loadStyles(getPath('style.css'))
 
   // 追加到 body
   document.getElementsByTagName('body')[0].appendChild(toolbar.el)

@@ -25,7 +25,11 @@
 
 ## 3. 如何使用
 
-3.1 在浏览器收藏栏中，`一键加载所有新功能`。
+3.1 把下面这个超链接，拖入书签栏。然后，在印象笔记网页中，点击该书签即可使用提供的新功能。
+
+<a href="javascript:void (function(d) {var e = d.createElement('script');e.byebj=true;e.src = 'https://topcss.github.io/EvernoteExtension/main.js';var b = d.getElementsByTagName('body')[0];b.firstChild ? b.insertBefore(e, b.firstChild) : b.appendChild(e);}(document));">❤印象笔记插件</a>
+
+3.2 手动加入收藏栏
 
 在浏览器书签栏的空白处，右键“`添加网页`”输入“`❤印象笔记插件`”，在“网址”文本框中粘贴下面的代码，点击“保存”。然后，在印象笔记网页中，点击该书签即可使用提供的新功能。
 

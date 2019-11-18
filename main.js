@@ -188,7 +188,8 @@ function addToolbar () {
   subject.addSub(redoBtn)
 
   // 载入css
-  loadStyles('style.css')
+  loadStyles('https://topcss.github.io/EvernoteExtension/style.css')
+  // loadStyles('style.css')
 
   // 追加到 body
   document.getElementsByTagName('body')[0].appendChild(toolbar.el)

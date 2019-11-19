@@ -26,7 +26,7 @@
 - [x] 重做
 - [ ] 更多功能，陆续更新中 ... ...
 
-## 3. 如何使用
+## 3. 如何添加插件
 
 3.1 拖入收藏栏 **`(推荐)`**
 
@@ -39,3 +39,7 @@
 ``` javascript
 javascript:void (function(d) {var e = d.createElement('script');e.byebj=true;e.src = 'https://topcss.github.io/EvernoteExtension/main.js';var b = d.getElementsByTagName('body')[0];b.firstChild ? b.insertBefore(e, b.firstChild) : b.appendChild(e);}(document));
 ```
+
+## 4. 如何使用
+
+![使用印象笔记插件](https://upload-images.jianshu.io/upload_images/1694032-4892e525ace04563.gif?imageMogr2/auto-orient/strip)

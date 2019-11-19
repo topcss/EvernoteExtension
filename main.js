@@ -72,8 +72,18 @@ function pasteImage (event) {
         var reader = new FileReader();
         reader.onload = function (event) {
           var base64_str = event.target.result;
+          let imgHtml = ('<br><img src="' + base64_str + '"><br>')
 
-          tinymce.activeEditor.insertContent('<img src="' + base64_str + '">')
+          if (document.querySelector('.RichTextArea-entinymce') !== null) {
+            // 印象笔记需要绕一圈
+            let pId = 'id_' + Math.random().toString(36).substr(2, 4)
+            tinymce.activeEditor.insertContent('<p id="' + pId + '"></p>')
+
+            let doc = document.querySelector('.RichTextArea-entinymce').contentDocument
+            doc.getElementById(pId).innerHTML = imgHtml
+          } else {
+            tinymce.activeEditor.insertContent(imgHtml)
+          }
         }
         reader.readAsDataURL(blob);
       }

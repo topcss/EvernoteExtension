@@ -312,9 +312,11 @@ function addToolbar () {
   });
 }
 
-setTimeout(function () {
-
-  addToolbar();
-
-}, 1000)
+// main
+const interval = setInterval(() => {
+  if (tinymce !== undefined && tinymce.activeEditor !== null) {
+    clearInterval(interval)
+    addToolbar()
+  }
+}, 20)
 //#endregion

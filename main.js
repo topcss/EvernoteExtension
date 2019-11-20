@@ -22,13 +22,17 @@ function createEl (className, name = '', style = '') {
   return el
 }
 
-function createButton (src, className = '') {
+function createButton (src, className = '', tipText = '') {
   let img = createEl('', 'img')
   img.src = getPath("icons/" + src + ".svg")
+  if (tipText.length > 0) {
+    img.title = tipText
+  }
 
   let tbic = createEl('toolbar-button-icon-container')
   let db = createEl('dui-badge', 'span')
-  let tbw = createEl('toolbar-button-wrapper ' + className)
+  let tbw = createEl('toolbar-button-wrapper ' + (className ? className : ''))
+
 
   tbic.appendChild(img)
   db.appendChild(tbic)
@@ -121,7 +125,7 @@ class UndoButton extends BaseButton {
     this.render()
   }
   render () {
-    this.el = createButton('undo', 'disabled')
+    this.el = createButton('undo', 'disabled', '撤销')
 
     this.el.addEventListener('click', function () {
       tinyMCE.activeEditor.execCommand('undo')
@@ -147,7 +151,7 @@ class RedoButton extends BaseButton {
     this.render()
   }
   render () {
-    this.el = createButton('redo', 'disabled')
+    this.el = createButton('redo', 'disabled', '重做')
     this.el.addEventListener('click', function () {
       tinyMCE.activeEditor.execCommand('redo')
     })
@@ -172,7 +176,7 @@ class RfButton extends BaseButton {
     this.render()
   }
   render () {
-    this.el = createButton('clear')
+    this.el = createButton('clear', null, '清除格式')
     this.el.addEventListener('click', function () {
       tinyMCE.activeEditor.execCommand('removeformat')
     })
@@ -186,7 +190,7 @@ class HightlightButton extends BaseButton {
     this.render()
   }
   render () {
-    this.el = createButton('highlight')
+    this.el = createButton('highlight', null, '文字高亮')
     this.el.addEventListener('click', function () {
       tinyMCE.activeEditor.execCommand('hilitecolor', false, 'yellow')
     })
@@ -205,6 +209,7 @@ class TitleButton extends BaseButton {
   render () {
     let tbtc = createEl('toolbar-button-text-container', null)
     tbtc.innerText = '正文'
+    tbtc.title = '设置标题'
 
     let tbac = createEl('toolbar-button-arrow-container')
     let tba = createEl('toolbar-button-arrow')
@@ -233,7 +238,7 @@ class TitleButton extends BaseButton {
   }
   openDropdown () {
     let el = this.el
-    
+
     // 创建下拉菜单的容器
     let dropdown = new Dropdown()
     // 将tabIndex的值设为-1，则可获取焦点
@@ -318,7 +323,7 @@ class PreviewButton extends BaseButton {
     this.render()
   }
   render () {
-    this.el = createButton('print')
+    this.el = createButton('print', null, '打印预览')
     this.el.addEventListener('click', this.preview)
   }
   preview () {
@@ -342,7 +347,7 @@ class HelpButton extends BaseButton {
     this.render()
   }
   render () {
-    this.el = createButton('help')
+    this.el = createButton('help', null, '帮助')
     this.el.addEventListener('click', this.gotohelp)
   }
   gotohelp () {

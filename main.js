@@ -25,14 +25,13 @@ function createEl (className, name = '', style = '') {
 function createButton (src, className = '', tipText = '') {
   let img = createEl('', 'img')
   img.src = getPath("icons/" + src + ".svg")
-  if (tipText.length > 0) {
-    img.title = tipText
-  }
 
   let tbic = createEl('toolbar-button-icon-container')
   let db = createEl('dui-badge', 'span')
   let tbw = createEl('toolbar-button-wrapper ' + (className ? className : ''))
-
+  if (tipText.length > 0) {
+    tbw.title = tipText
+  }
 
   tbic.appendChild(img)
   db.appendChild(tbic)
@@ -209,7 +208,6 @@ class TitleButton extends BaseButton {
   render () {
     let tbtc = createEl('toolbar-button-text-container', null)
     tbtc.innerText = '正文'
-    tbtc.title = '设置标题'
 
     let tbac = createEl('toolbar-button-arrow-container')
     let tba = createEl('toolbar-button-arrow')
@@ -217,6 +215,7 @@ class TitleButton extends BaseButton {
 
     let db = createEl('dui-badge', 'span')
     let tbw = createEl('toolbar-button-wrapper', null, 'width:54px;')
+    tbw.title = '设置标题'
 
     db.appendChild(tbtc)
     db.appendChild(tbac)

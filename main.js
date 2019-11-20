@@ -108,6 +108,15 @@ function getLeft (e) {
   if (e.offsetParent != null) offset += getLeft(e.offsetParent);
   return offset;
 }
+
+// baidu tongji
+var _hmt = _hmt || [];
+function tongji () {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?1afe8503894c5dc426e7e1dc98f1c28f";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+}
 //#endregion
 
 //#region Controls
@@ -495,6 +504,9 @@ function addToolbar () {
   // 追加到 body
   document.querySelector('body').appendChild(toolbar.el)
 
+  // 统计
+  tongji()
+
   tinymce.activeEditor.on("NodeChange", () => {
     subject.notify()
   })
@@ -502,6 +514,7 @@ function addToolbar () {
   tinymce.activeEditor.on("Paste", (event) => {
     pasteImage(event)
   });
+
 }
 
 // main

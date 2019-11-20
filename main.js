@@ -504,9 +504,6 @@ function addToolbar () {
   // 追加到 body
   document.querySelector('body').appendChild(toolbar.el)
 
-  // 统计
-  tongji()
-
   tinymce.activeEditor.on("NodeChange", () => {
     subject.notify()
   })
@@ -515,6 +512,8 @@ function addToolbar () {
     pasteImage(event)
   });
 
+  // 统计
+  tongji()
 }
 
 // main

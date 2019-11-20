@@ -15,9 +15,10 @@ function loadStyles (url) {
   head.appendChild(link);
 }
 
-function createEl (className, name = 'div') {
-  let el = document.createElement(name)
+function createEl (className, name = '', style = '') {
+  let el = document.createElement(name || 'div')
   el.className = className
+  if (style.length > 0) { el.style = style }
   return el
 }
 
@@ -38,9 +39,9 @@ function createButton (src, className = '') {
 
 function getPath (filePath) {
   // publish
-  return "https://topcss.github.io/EvernoteExtension/" + filePath;
+  // return "https://topcss.github.io/EvernoteExtension/" + filePath;
   // dev
-  // return filePath
+  return filePath
 }
 
 // 新窗口打开
@@ -91,6 +92,19 @@ function pasteImage (event) {
   }
 }
 
+//获取元素的纵坐标
+function getTop (e) {
+  var offset = e.offsetTop;
+  if (e.offsetParent != null) offset += getTop(e.offsetParent);
+  return offset;
+}
+
+//获取元素的横坐标
+function getLeft (e) {
+  var offset = e.offsetLeft;
+  if (e.offsetParent != null) offset += getLeft(e.offsetParent);
+  return offset;
+}
 //#endregion
 
 //#region Controls
@@ -179,6 +193,124 @@ class HightlightButton extends BaseButton {
   }
 }
 
+class TitleButton extends BaseButton {
+  constructor() {
+    super()
+
+    this.isChecked = false
+    this.dropdown = null
+
+    this.render()
+  }
+  render () {
+    let tbtc = createEl('toolbar-button-text-container', null)
+    tbtc.innerText = '正文'
+
+    let tbac = createEl('toolbar-button-arrow-container')
+    let tba = createEl('toolbar-button-arrow')
+    tbac.appendChild(tba)
+
+    let db = createEl('dui-badge', 'span')
+    let tbw = createEl('toolbar-button-wrapper', null, 'width:54px;')
+
+    db.appendChild(tbtc)
+    db.appendChild(tbac)
+
+    tbw.appendChild(db)
+
+    this.el = tbw
+    this.el.addEventListener('click', (event) => {
+      this.checked.call(this, event)
+    })
+  }
+  checked (event) {
+    this.isChecked = !this.isChecked
+
+    this.openDropdown()
+
+    // 修改选中状态
+    this.toggle()
+  }
+  openDropdown () {
+    let el = this.el
+    
+    // 创建下拉菜单的容器
+    let dropdown = new Dropdown()
+    // 将tabIndex的值设为-1，则可获取焦点
+    dropdown.el.tabIndex = -1
+    dropdown.el.style.left = parseInt(getLeft(el) - 5) + 'px'
+    dropdown.el.style.top = parseInt(getTop(el) + parseInt(document.defaultView.getComputedStyle(el, true).height) + 4) + 'px'
+
+    // 创建下拉菜单的子项
+    let tmpStr = 'padding: 10px 20px 10px 26px; line-height: 100%; font-weight: 700;'
+    dropdown.addItem(new DropdownItem('正文', '', () => {
+      tinyMCE.activeEditor.execCommand('mceToggleFormat', false, 'p')
+      this.closeDropdown()
+    }))
+    // dropdown.addItem(new DropdownItem('标题', 'font-size: 22pt;' + tmpStr))
+    // dropdown.addItem(new DropdownItem('副标题', 'font-size: 16pt; color: rgb(132, 132, 132);' + tmpStr))
+    dropdown.addItem(new DropdownItem('标题1', 'font-size: 22pt;' + tmpStr, () => {
+      tinyMCE.activeEditor.execCommand('mceToggleFormat', false, 'h1')
+      this.closeDropdown()
+    }))
+    dropdown.addItem(new DropdownItem('标题2', 'font-size: 18pt;' + tmpStr, () => {
+      tinyMCE.activeEditor.execCommand('mceToggleFormat', false, 'h2')
+      this.closeDropdown()
+    }))
+    dropdown.addItem(new DropdownItem('标题3', 'font-size: 16pt;' + tmpStr, () => {
+      tinyMCE.activeEditor.execCommand('mceToggleFormat', false, 'h3')
+      this.closeDropdown()
+    }))
+    dropdown.addItem(new DropdownItem('标题4', 'font-size: 15pt;' + tmpStr, () => {
+      tinyMCE.activeEditor.execCommand('mceToggleFormat', false, 'h4')
+      this.closeDropdown()
+    }))
+    dropdown.addItem(new DropdownItem('标题5', 'font-size: 14pt;' + tmpStr, () => {
+      tinyMCE.activeEditor.execCommand('mceToggleFormat', false, 'h5')
+      this.closeDropdown()
+    }))
+    dropdown.addItem(new DropdownItem('标题6', 'font-size: 12pt;' + tmpStr, () => {
+      tinyMCE.activeEditor.execCommand('mceToggleFormat', false, 'h6')
+      this.closeDropdown()
+    }))
+
+    // 加入到body
+    document.querySelector('body').appendChild(dropdown.el)
+
+    // 离开事件
+    dropdown.el.addEventListener('blur', this.closeDropdown.bind(this))
+    dropdown.el.focus()
+
+    // 加入到当前对象中
+    this.dropdown = dropdown
+  }
+  closeDropdown () {
+    if (this.isChecked === true) {
+      // 取消选中
+      this.isChecked = false
+      this.toggle()
+
+      // 移除节点
+      if (this.dropdown != null) {
+        this.dropdown.el.remove()
+        // 回收对象
+        this.dropdown = null
+      }
+    }
+  }
+  toggle () {
+    let el = this.el
+
+    if (this.isChecked) {
+      if (el.className.indexOf('checked') === -1) {
+        el.className += ' checked';
+      }
+    } else {
+      el.className = el.className.replace(' checked', '');
+    }
+  }
+}
+
 class PreviewButton extends BaseButton {
   constructor() {
     super()
@@ -248,6 +380,48 @@ class Toolbar {
     this.buttons.appendChild(btn.el)
   }
 }
+
+class Dropdown {
+  constructor() {
+    this.render()
+  }
+  render () {
+    this.listBox = createEl('select-list-box', null, 'width:152px;max-height:800px;')
+
+    let lw = createEl('select-list-wrapper')
+    lw.appendChild(this.listBox)
+
+    this.el = createEl(
+      'dui-dropdown-content dui-dropdown-content-bottom dui-dropdown-content-visible',
+      null,
+      'z-index: 9999; margin-left: 0px; ')
+    this.el.appendChild(lw)
+  }
+  addItem (item) {
+    this.listBox.appendChild(item.el)
+  }
+}
+
+class DropdownItem {
+  constructor(text, style, event) {
+    this.render(text, style, event)
+  }
+  render (text, style, event) {
+    this.item = createEl('select-list-item-box')
+    this.item.style = style
+    this.item.innerText = text
+
+    let iw = createEl('select-list-item-wrapper')
+    iw.appendChild(this.item)
+
+    this.el = createEl('select-list-item')
+    this.el.addEventListener('click', event, false)
+    this.el.appendChild(iw)
+
+  }
+}
+
+
 //#endregion
 
 //#region Main
@@ -291,6 +465,10 @@ function addToolbar () {
   var highlightBtn = new HightlightButton()
   toolbar.addButton(highlightBtn)
 
+  // 设置标题
+  var titleBtn = new TitleButton()
+  toolbar.addButton(titleBtn)
+
   // 分隔符
   var dividerBtn = new dividerButton()
   toolbar.addButton(dividerBtn)
@@ -311,7 +489,7 @@ function addToolbar () {
   loadStyles(getPath('style.css'))
 
   // 追加到 body
-  document.getElementsByTagName('body')[0].appendChild(toolbar.el)
+  document.querySelector('body').appendChild(toolbar.el)
 
   tinymce.activeEditor.on("NodeChange", () => {
     subject.notify()

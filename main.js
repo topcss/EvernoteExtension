@@ -6,13 +6,30 @@
  */
 
 //#region Common
+function getPath (filePath) {
+  if (location.href.includes('http')) {// for publish
+    return "https://topcss.github.io/EvernoteExtension/" + filePath;
+  } else {// for dev
+    return filePath
+  }
+}
+
 function loadStyles (url) {
-  var link = document.createElement("link");
+  let link = document.createElement("link");
   link.rel = "stylesheet";
   link.type = "text/css";
   link.href = url;
-  var head = document.getElementsByTagName("head")[0];
+  let head = document.getElementsByTagName("head")[0];
   head.appendChild(link);
+}
+
+let loadJs = (url) => {
+  let script = document.createElement("script");
+  script.byebj = true;
+  script.type = "text/javascript";
+  script.src = url;
+  let head = document.getElementsByTagName("head")[0];
+  head.appendChild(script);
 }
 
 function createEl (className, name = '', style = '') {
@@ -38,13 +55,6 @@ function createButton (src, className = '', tipText = '') {
   tbw.appendChild(db)
 
   return tbw
-}
-
-function getPath (filePath) {
-  // publish
-  return "https://topcss.github.io/EvernoteExtension/" + filePath;
-  // dev
-  // return filePath
 }
 
 // 新窗口打开
@@ -109,14 +119,6 @@ function getLeft (e) {
   return offset;
 }
 
-// baidu tongji
-var _hmt = _hmt || [];
-function tongji () {
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?1afe8503894c5dc426e7e1dc98f1c28f";
-  var s = document.getElementsByTagName("script")[0];
-  s.parentNode.insertBefore(hm, s);
-}
 //#endregion
 
 //#region Controls
@@ -348,6 +350,37 @@ class PreviewButton extends BaseButton {
   }
 }
 
+class ScreenshotButton extends BaseButton {
+  constructor() {
+    super()
+
+    this.render()
+  }
+  render () {
+    this.el = createButton('screenshot', null, '截图')
+    this.el.addEventListener('click', this.exportImage)
+  }
+  exportImage () {
+    const targetDom = document.querySelector('iframe').contentDocument.body
+
+    html2canvas(targetDom).then(canvas => {
+      document.body.appendChild(canvas)
+
+      const dataImg = new Image()
+      dataImg.src = canvas.toDataURL('image/png')
+      document.body.appendChild(dataImg)
+
+      const alink = document.createElement('a')
+      alink.href = dataImg.src
+      alink.download = '印象笔记·截图.jpg'
+      alink.click()
+
+      document.body.removeChild(canvas)
+      document.body.removeChild(dataImg)
+    })
+  }
+}
+
 class HelpButton extends BaseButton {
   constructor() {
     super()
@@ -486,6 +519,9 @@ function addToolbar () {
   var dividerBtn = new dividerButton()
   toolbar.addButton(dividerBtn)
 
+  var screenshot = new ScreenshotButton()
+  toolbar.addButton(screenshot)
+
   // 打印预览
   var previewBtn = new PreviewButton()
   toolbar.addButton(previewBtn)
@@ -512,8 +548,8 @@ function addToolbar () {
     pasteImage(event)
   });
 
-  // 统计
-  tongji()
+  // 用于截图
+  loadJs(getPath('html2canvas.min.js'))
 }
 
 // main

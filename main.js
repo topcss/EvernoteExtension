@@ -13,6 +13,10 @@ function getPath (filePath) {
   }
 }
 
+function getMceNode () {
+  return document.querySelector('.mce-container iframe')
+}
+
 function loadStyles (url) {
   let link = document.createElement("link")
   link.rel = "stylesheet"
@@ -23,7 +27,7 @@ function loadStyles (url) {
 }
 
 let loadJs = (url) => {
-  let doc = document.querySelector('iframe').contentDocument
+  let doc = getMceNode().contentDocument
   let script = doc.createElement("script")
   script.byebj = true
   script.type = "text/javascript"
@@ -338,7 +342,7 @@ class PreviewButton extends BaseButton {
   }
   preview () {
     try {
-      let html = document.querySelector('.mce-container iframe').contentDocument.body.innerHTML;
+      let html = getMceNode().contentDocument.body.innerHTML;
       var mainView = window.open('', "mainView");
       var doc = mainView.document;
       doc.write(html);
@@ -361,10 +365,9 @@ class ScreenshotButton extends BaseButton {
     this.el.addEventListener('click', this.exportImage)
   }
   exportImage () {
-    let doc = document.querySelector('iframe').contentDocument 
-    const targetDom = doc.body
+    const targetDom = getMceNode().contentDocument.body
 
-    document.querySelector('iframe').contentWindow.html2canvas(targetDom).then(canvas => {
+    getMceNode().contentWindow.html2canvas(targetDom).then(canvas => {
       document.body.appendChild(canvas)
 
       const dataImg = new Image()

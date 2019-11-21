@@ -5,29 +5,21 @@
  * Website: https://github.com/topcss/
  */
 //#region Common
-function getPath (filePath) {
-  if (location.href.includes('http')) {// for publish
-    return "https://topcss.github.io/EvernoteExtension/" + filePath
-  } else {// for dev
-    return filePath
-  }
-}
+const getPath = (path) => (location.href.includes('http') ? "https://topcss.github.io/EvernoteExtension/" : '') + path
+const getMceNode = () => document.querySelector('.mce-container iframe')
+const getMceDoc = () => getMceNode().contentDocument
+const getMceWin = () => getMceNode().contentWindow
 
-function getMceNode () {
-  return document.querySelector('.mce-container iframe')
-}
-
-function loadStyles (url) {
-  let link = document.createElement("link")
+function loadCss (url, doc = document) {
+  let link = doc.createElement("link")
   link.rel = "stylesheet"
   link.type = "text/css"
   link.href = url
-  let head = document.getElementsByTagName("head")[0]
+  let head = doc.getElementsByTagName("head")[0]
   head.appendChild(link)
 }
 
-let loadJs = (url) => {
-  let doc = getMceNode().contentDocument
+let loadJs = (url, doc = document) => {
   let script = doc.createElement("script")
   script.byebj = true
   script.type = "text/javascript"
@@ -36,8 +28,8 @@ let loadJs = (url) => {
   head.appendChild(script)
 }
 
-function createEl (className, name = '', style = '') {
-  let el = document.createElement(name || 'div')
+function createEl (className, nodeName = '', style = '') {
+  let el = document.createElement(nodeName || 'div')
   el.className = className
   if (style.length > 0) { el.style = style }
   return el
@@ -342,7 +334,7 @@ class PreviewButton extends BaseButton {
   }
   preview () {
     try {
-      let html = getMceNode().contentDocument.body.innerHTML;
+      let html = getMceDoc().body.innerHTML;
       var mainView = window.open('', "mainView");
       var doc = mainView.document;
       doc.write(html);
@@ -365,9 +357,9 @@ class ScreenshotButton extends BaseButton {
     this.el.addEventListener('click', this.exportImage)
   }
   exportImage () {
-    const targetDom = getMceNode().contentDocument.body
+    const targetDom = getMceDoc().body
 
-    getMceNode().contentWindow.html2canvas(targetDom).then(canvas => {
+    getMceWin().html2canvas(targetDom).then(canvas => {
       document.body.appendChild(canvas)
 
       const dataImg = new Image()
@@ -402,6 +394,167 @@ class HelpButton extends BaseButton {
   }
 }
 
+// 格式刷
+class FormatPainterButton extends BaseButton {
+  constructor() {
+    super()
+
+    // 加入监听其他按钮按下的列表
+    this.btnClickListenner = true
+
+    // 模式：0 默认,1 一次性,2 重复
+    this.mode = 0
+
+    // 包含bind的事件，会返回一个新函数
+    this.escHandler = null
+
+    // 记录选中的样式
+    this.wrapperNode = null
+
+    this.selectingHandler = null
+
+    this.render()
+  }
+  //#region 事件处理
+  render () {
+    this.el = createButton('brush', null, '格式刷，双击可重复使用')
+    this.el.addEventListener('click', this.toggleOnce.bind(this))
+    this.el.addEventListener('dblclick', this.toggleRepeately.bind(this))
+  }
+  OnButtonClicked (event) {
+    // 不是自己点的，就退出格式刷
+    if (event.target.outerHTML.includes('brush.svg') === false) {
+      this.toggleDefault()
+    }
+  }
+  onPressEsc (event) {
+    if (event.keyCode === 27) {
+      this.toggleDefault()
+    }
+  }
+  /**
+   * 切换按钮显示状态
+   * @param {模式的序号} modeNum 
+   */
+  toggleMode (modeNum, tipText) {
+    this.mode = modeNum
+    this.el.title = tipText
+
+    let el = this.el
+
+    if (this.mode !== 0) {
+      if (el.className.indexOf('checked') === -1) {
+        el.className += ' checked';
+      }
+    } else {
+      el.className = el.className.replace(' checked', '');
+    }
+  }
+  startHandler (modeNum) {
+    // 先清除一下事件
+    this.toggleDefault()
+
+    // 再设置新的事件
+    this.toggleMode(modeNum, '退出格式刷(Esc)')
+
+    this.escHandler = this.onPressEsc.bind(this);
+
+    // 监听窗口
+    window.addEventListener('keydown', this.escHandler)
+
+    // 监听编辑器
+    getMceWin().addEventListener('keydown', this.escHandler)
+
+    // 设置编辑器的焦点
+    tinyMCE.activeEditor.focus()
+
+    // 修改鼠标
+    let mceBody = getMceDoc().querySelector('body')
+    if (mceBody.className.indexOf('format-painter-active') === -1) {
+      mceBody.className += ' format-painter-active';
+    }
+
+    // 记录样式
+    let node = tinymce.activeEditor.selection.getNode()
+    if (node.nodeName === 'BODY') { node = node.children[0] }
+    this.wrapperNode = node.cloneNode()
+  }
+  toggleDefault () {
+    this.toggleMode(0, '格式刷，双击可重复使用')
+
+    // 解绑事件
+    window.removeEventListener('keydown', this.escHandler)
+    getMceWin().removeEventListener('keydown', this.escHandler)
+
+    // 回收
+    this.escHandler = null
+
+    // 退出修改
+    let mceBody = getMceDoc().querySelector('body')
+    if (mceBody.className.indexOf('format-painter-active') > -1) {
+      mceBody.className = mceBody.className.replace(' format-painter-active', '');
+    }
+
+    getMceDoc().removeEventListener('selectionchange', this.selectingHandler)
+
+    // 清空选中样式
+    this.wrapperNode = null
+
+    // console.log('退出格式刷')
+  }
+  //#endregion
+  onSelected (event) {
+    let text = tinymce.activeEditor.selection.getContent()
+    if (text.length > 0) {
+      this.wrapperNode.innerHTML = text
+
+      tinymce.activeEditor.execCommand('delete')
+      tinymce.activeEditor.insertContent(this.wrapperNode.outerHTML)
+
+      // 一次性，要移除事件
+      if (this.mode === 1) {
+        this.toggleDefault()
+      }
+      // console.log('选择完成')
+    }
+
+    // 清除
+    getMceWin().removeEventListener('mouseup', this.selectedHandler)
+    window.removeEventListener('mouseup', this.selectedHandler)
+  }
+  onSelecting (event) {
+    // 先清除之前的
+    getMceWin().removeEventListener('mouseup', this.selectedHandler)
+    window.removeEventListener('mouseup', this.selectedHandler)
+
+    // 重新添加事件
+    this.selectedHandler = this.onSelected.bind(this)
+    getMceWin().addEventListener('mouseup', this.selectedHandler)
+    window.addEventListener('mouseup', this.selectedHandler)
+  }
+  toggleOnce () {
+    // 已经选中了，再次点击就退出
+    if (this.mode !== 0) {
+      this.toggleDefault()
+    } else {
+      this.startHandler(1)
+
+      this.selectingHandler = this.onSelecting.bind(this)
+      getMceDoc().addEventListener('selectionchange', this.selectingHandler)
+
+      // console.log('一次性使用，格式刷')
+    }
+  }
+  toggleRepeately () {
+    this.startHandler(2)
+
+    this.selectingHandler = this.onSelecting.bind(this)
+    getMceDoc().addEventListener('selectionchange', this.selectingHandler)
+
+    // console.log('重复使用，格式刷')
+  }
+}
+
 class dividerButton extends BaseButton {
   constructor() {
     super()
@@ -415,6 +568,8 @@ class dividerButton extends BaseButton {
 
 class Toolbar {
   constructor() {
+    this.clickNotifies = []
+
     this.render()
   }
   render () {
@@ -427,7 +582,20 @@ class Toolbar {
     this.el.appendChild(tc)
   }
   addButton (btn) {
+    // 每个工具栏的按钮加一个时间，用于监听事件
+    btn.el.addEventListener('click', this.OnButtonClick.bind(this), false)
+
+    if (btn.btnClickListenner === true) {
+      this.clickNotifies.push(btn)
+    }
+
     this.buttons.appendChild(btn.el)
+  }
+  OnButtonClick (event) {
+    // 没有禁用时触发
+    if (event.currentTarget.className.includes('disabled') === false) {
+      this.clickNotifies.forEach(n => { n.OnButtonClicked(event) })
+    }
   }
 }
 
@@ -507,22 +675,27 @@ function addToolbar () {
   var dividerBtn = new dividerButton()
   toolbar.addButton(dividerBtn)
 
+  // 格式刷
+  var brushBtn = new FormatPainterButton()
+  toolbar.addButton(brushBtn)
+
   // 清除格式
   var rfBtn = new RfButton()
   toolbar.addButton(rfBtn)
-
-  // 高亮
-  var highlightBtn = new HightlightButton()
-  toolbar.addButton(highlightBtn)
 
   // 设置标题
   var titleBtn = new TitleButton()
   toolbar.addButton(titleBtn)
 
+  // 高亮
+  var highlightBtn = new HightlightButton()
+  toolbar.addButton(highlightBtn)
+
   // 分隔符
   var dividerBtn = new dividerButton()
   toolbar.addButton(dividerBtn)
 
+  // 截屏
   var screenshot = new ScreenshotButton()
   toolbar.addButton(screenshot)
 
@@ -539,7 +712,7 @@ function addToolbar () {
   subject.addSub(redoBtn)
 
   // 载入css
-  loadStyles(getPath('style.css'))
+  loadCss(getPath('style.css'))
 
   // 追加到 body
   document.querySelector('body').appendChild(toolbar.el)
@@ -552,8 +725,11 @@ function addToolbar () {
     pasteImage(event)
   });
 
+  // 用于支持格式刷的鼠标样式
+  loadCss(getPath('tinymce.css'), getMceDoc())
+
   // 用于截图
-  loadJs(getPath('html2canvas.min.js'))
+  loadJs(getPath('html2canvas.min.js'), getMceDoc())
 }
 
 // main

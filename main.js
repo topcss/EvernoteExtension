@@ -506,10 +506,12 @@ class FormatPainterButton extends BaseButton {
   onSelected (event) {
     let text = tinymce.activeEditor.selection.getContent()
     if (text.length > 0) {
-      this.wrapperNode.innerHTML = text
+      if (this.wrapperNode !== null) {
+        this.wrapperNode.innerHTML = text
 
-      tinymce.activeEditor.execCommand('delete')
-      tinymce.activeEditor.insertContent(this.wrapperNode.outerHTML)
+        tinymce.activeEditor.execCommand('delete')
+        tinymce.activeEditor.insertContent(this.wrapperNode.outerHTML)
+      }
 
       // 一次性，要移除事件
       if (this.mode === 1) {

@@ -5,6 +5,18 @@
  * Website: https://github.com/topcss/
  */
 //#region Common
+Object.assign(Number.prototype, {
+  /**
+   * 数字千分位显示
+   */
+  qfw () {
+    return this.toString().replace(/\d{1,3}(?=(\d{3})+(\.\d*)?$)/g, '$&,')
+  }
+})
+/**
+ * 自动切换开发环境与生产环境的资源路径
+ * @param {*} path 
+ */
 const getPath = (path) => (location.href.includes('http') ? "https://topcss.github.io/EvernoteExtension/" : '') + path
 const getMceNode = () => document.querySelector('.mce-container iframe')
 const getMceDoc = () => getMceNode().contentDocument
@@ -557,6 +569,47 @@ class FormatPainterButton extends BaseButton {
   }
 }
 
+// 字数统计
+class WordCountButton extends BaseButton {
+  constructor() {
+    super()
+
+    this.render()
+  }
+  render () {
+    this.totalEl = createEl('')
+    this.selectionEl = createEl('')
+
+    this.container = createEl('toolbar-button-text-container', null, 'width:auto')
+    let el = createEl('toolbar-button-wrapper')
+    el.appendChild(this.container)
+
+    this.el = el
+    this.update()
+  }
+  update () {
+    this.totalEl.innerHTML = tinyMCE.activeEditor.getContent()
+    this.selectionEl.innerHTML = tinyMCE.activeEditor.selection.getContent()
+
+    let totalText = this.totalEl.innerText.replace(/[\n\r\s]/g, '')
+    let selectionText = this.selectionEl.innerText.replace(/[\n\r\s]/g, '')
+
+    let text = ''
+    // 千分位显示
+    if (selectionText.length > 0) {
+      text = selectionText.length.qfw() + '/'
+    }
+    if (totalText.length > 0) {
+      text += totalText.length.qfw() + ' 个字'
+    }
+    if (text.length === 0) {
+      text = '没有内容'
+    }
+    this.container.innerText = text
+    this.el.title = text
+  }
+}
+
 class dividerButton extends BaseButton {
   constructor() {
     super()
@@ -674,8 +727,7 @@ function addToolbar () {
   toolbar.addButton(redoBtn)
 
   // 分隔符
-  var dividerBtn = new dividerButton()
-  toolbar.addButton(dividerBtn)
+  toolbar.addButton(new dividerButton())
 
   // 格式刷
   var brushBtn = new FormatPainterButton()
@@ -694,8 +746,14 @@ function addToolbar () {
   toolbar.addButton(highlightBtn)
 
   // 分隔符
-  var dividerBtn = new dividerButton()
-  toolbar.addButton(dividerBtn)
+  toolbar.addButton(new dividerButton())
+
+  // 字数统计
+  var wcBtn = new WordCountButton()
+  toolbar.addButton(wcBtn)
+
+  // 分隔符 
+  toolbar.addButton(new dividerButton())
 
   // 截屏
   var screenshot = new ScreenshotButton()
@@ -712,6 +770,7 @@ function addToolbar () {
   // 加入观察
   subject.addSub(undoBtn)
   subject.addSub(redoBtn)
+  subject.addSub(wcBtn)
 
   // 载入css
   loadCss(getPath('style.css'))

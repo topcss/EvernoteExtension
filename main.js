@@ -22,6 +22,15 @@ const getMceNode = () => document.querySelector('.mce-container iframe')
 const getMceDoc = () => getMceNode().contentDocument
 const getMceWin = () => getMceNode().contentWindow
 
+// 需要配合合并工具来使用
+// ref https://www.zhangxinxu.com/sp/svgo/
+const loadSvgSprite = () => {
+  let el = createEl('', null, 'display: none')
+  el.innerHTML = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" style="display:none;"><symbol id="brush" viewBox="0 0 22 22"><path d="M11.75 11.489V13h.75v4.078L9.5 19v-6h1v-2h.008l-.001-.001 1.02-.999H4.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-.5.5h-4.23l-1.52 1.489zM5.25 5.25v3.5h11.5v-3.5H5.25z" fill="#5C5C5C" fill-rule="nonzero"/></symbol><symbol id="clear" viewBox="0 0 22 22"><path d="M6.493 17h3.997l2.485-4.233-4.917-2.792-3.484 5.935L6.494 17zm5.487 0H18v1.25H6.114l-2.856-1.622a.503.503 0 0 1-.189-.693L9.78 4.504a.52.52 0 0 1 .705-.186l6.258 3.554c.247.14.331.45.189.693L11.98 17z" fill="#5C5C5C" fill-rule="evenodd"/></symbol><symbol id="help" viewBox="0 0 18 18"><g fill="none" fill-rule="evenodd"><path d="M0 0h18v18H0z"/><g fill="#999" fill-rule="nonzero"><path d="M8.937 12.113h-.882a.278.278 0 0 1-.209-.086.277.277 0 0 1-.084-.207 9.386 9.386 0 0 1 .179-2.297c.09-.371.278-.71.544-.98.242-.261.503-.492.764-.737.26-.245.572-.515.867-.76.58-.491.51-1.345-.215-1.747a1.67 1.67 0 0 0-1.37-.111c-.45.161-.814.51-.999.957-.059.15-.107.304-.145.461-.058.214-.154.29-.372.263l-1.723-.211a.303.303 0 0 1-.228-.12.313.313 0 0 1-.057-.253C5.17 4.683 6.367 3.39 7.93 3.12a4.942 4.942 0 0 1 3.043.285 3.313 3.313 0 0 1 1.85 1.963 2.627 2.627 0 0 1-.402 2.59c-.414.51-.88.973-1.392 1.381-.162.143-.317.295-.483.435-.264.219-.411.55-.4.895 0 .375-.023.748-.033 1.124.01.09-.022.18-.086.244a.287.287 0 0 1-.24.076h-.851zM10.184 14.773c0 .678-.541 1.227-1.209 1.227-.667 0-1.208-.55-1.208-1.227s.541-1.226 1.208-1.226c.668 0 1.209.549 1.209 1.226z"/></g></g></symbol><symbol id="highlight" viewBox="0 0 22 22"><path d="M11.708 15.967l-.934 1.619H5l2.378-4.119-1.963-1.133a.46.46 0 0 1-.168-.629L9.85 3.73a.46.46 0 0 1 .629-.168l7.974 4.604a.46.46 0 0 1 .169.629l-4.604 7.975a.46.46 0 0 1-.63.168l-1.681-.97zM10.538 5.04l-3.814 6.607 6.607 3.815 3.815-6.607-6.607-3.815z" fill="#636363" fill-rule="nonzero"/></symbol><symbol id="print" viewBox="0 0 1024 1024"><path d="M821.704 295.224h-83.168v-67.008c0-30.56-15.552-62.112-46.08-62.112H360.072c-30.56 0-64.256 31.552-64.256 62.112v67.04h-65.024c-30.528 0-64.128 31.712-64.128 62.24v203.136c0 30.56 33.6 48.224 64.128 48.224h64.992v207.072c0 30.56 33.696 48 64.256 48h332.384c30.56 0 46.08-17.44 46.08-48V608.824h83.168c30.56 0 46.752-17.696 46.752-48.224V357.496c.032-30.56-16.16-62.272-46.72-62.272m-488.992-67.008c0-10.176 17.216-26.016 27.36-26.016h332.384c10.176 0 9.216 15.84 9.216 26.016v67.04h-368.96v-67.04m368.928 580.64c0 10.176-8 18.944-18.176 18.944H351.048a18.784 18.784 0 0 1-18.336-18.944v-273.76c0-10.208 8.16-18.464 18.336-18.464h332.416a18.24 18.24 0 0 1 18.176 18.464v273.76M830.792 560.6c0 10.176 1.152 11.36-9.056 11.36h-83.168v-29.792c0-30.56-15.552-62.432-46.08-62.432H360.072c-30.56 0-64.256 31.872-64.256 62.432v29.792h-65.024c-10.176 0-27.232-1.152-27.232-11.36V357.496c0-10.176 17.056-25.344 27.232-25.344h590.912c10.176 0 9.056 15.168 9.056 25.344l.032 203.104m-182.464 37.824H389.8c-10.176 0-18.464 7.84-18.464 18.048s8.288 18.048 18.464 18.048h258.528c10.208 0 18.464-7.84 18.464-18.048s-8.288-18.048-18.464-18.048m0 106.688H389.8a18.432 18.432 0 1 0 0 36.864h258.528a18.432 18.432 0 1 0 0-36.864m111.968-327.136zm-27.2 0a27.168 27.168 0 1 0 54.336 0 27.168 27.168 0 0 0-54.336 0" fill="#636363"/></symbol><symbol id="redo" viewBox="0 0 22 22"><path d="M13 7H7v.003l-.002-.004-3 2.002.002.004V18h1.25V9.665L7.371 8.25H13V11l6-3.424v-.07L13 4v3z" fill="#5C5C5C" fill-rule="nonzero"/></symbol><symbol id="screenshot" viewBox="0 0 1024 1024"><path d="M840.3 253.9v522.3H193.7V253.9h646.6m49.8-49.8H143.9v621.8H890V204.1h.1zm-746.2-99.5v99.5H69.3v49.8h124.4V104.6zm746.2 820.8v-99.5h74.6v-49.8H840.3v149.3zM516 708.4H302.5c-7.8 0-20.4-2.9-23.3-7.8-2.9-4.9 1.9-16.5 5.8-23.3 26.2-39.8 53.4-79.6 79.6-119.4 8.7-12.6 17.5-13.6 31.1-7.8 44.6 21.4 90.3 42.7 135.9 64.1 12.6 5.8 28.1 1.9 35.9-9.7 24.3-37.9 49.5-74.7 75.7-111.6 4.9-6.8 13.6-17.5 20.4-17.5 7.8 0 13.6 12.6 16.5 20.4 24.3 60.2 47.6 121.3 70.9 181.5 9.7 25.2 5.8 31.1-23.3 31.1H516zm-78.6-298c0 29.1-25.2 52.4-54.4 51.4-29.1-1-51.4-23.3-51.4-51.4 0-29.1 24.3-52.4 54.4-51.4 27.1.9 51.4 24.2 51.4 51.4z" fill="#636363"/></symbol><symbol id="undo" viewBox="0 0 22 22"><path d="M9 7h6v.003l.002-.004 3 2.002-.002.004V18h-1.25V9.665L14.629 8.25H9V11L3 7.576v-.07L9 4v3z" fill="#5C5C5C" fill-rule="nonzero"/></symbol></svg>'
+
+  document.querySelector('body').appendChild(el)
+}
+
 function loadCss (url, doc = document) {
   let link = doc.createElement("link")
   link.rel = "stylesheet"
@@ -48,8 +57,8 @@ function createEl (className, nodeName = '', style = '') {
 }
 
 function createButton (src, className = '', tipText = '') {
-  let img = createEl('', 'img')
-  img.src = getPath("icons/" + src + ".svg")
+  // let img = createEl('', 'img')
+  // img.src = getPath("icons/" + src + ".svg")
 
   let tbic = createEl('toolbar-button-icon-container')
   let db = createEl('dui-badge', 'span')
@@ -58,7 +67,8 @@ function createButton (src, className = '', tipText = '') {
     tbw.title = tipText
   }
 
-  tbic.appendChild(img)
+  // tbic.appendChild(img)
+  tbic.innerHTML = '<svg class="icon-sprite"><use xlink:href="#' + src + '"/></svg>'
   db.appendChild(tbic)
   tbw.appendChild(db)
 
@@ -435,7 +445,7 @@ class FormatPainterButton extends BaseButton {
   }
   OnButtonClicked (event) {
     // 不是自己点的，就退出格式刷
-    if (event.target.outerHTML.includes('brush.svg') === false) {
+    if (event.target.outerHTML.includes('brush') === false) {
       this.toggleDefault()
     }
   }
@@ -711,6 +721,9 @@ class Subject {
 }
 
 function addToolbar () {
+
+  // 使用 svg sprite 来提高图标显示速度
+  loadSvgSprite()
 
   // 观察者
   const subject = new Subject();

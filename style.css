@@ -366,3 +366,8 @@ li {
   -webkit-transform: scaleX(1) translateY(20px);
   transform: scaleX(1) translateY(20px);
 }
+
+.icon-sprite {
+  height: 22px;
+  width: 22px;
+}

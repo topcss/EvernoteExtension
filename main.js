@@ -11,6 +11,11 @@
     document.getElementsByTagName('body')[0].firstChild.remove()
     return;
   }
+  // chrome only.
+  if (!navigator.userAgent.includes('WebKit')) {
+    alert('请用谷歌内核的浏览器使用该插件。')
+    return;
+  }
 
   //#region Common
   Object.assign(Number.prototype, {

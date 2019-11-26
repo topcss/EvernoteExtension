@@ -22,6 +22,7 @@ const getMceNode = () => document.querySelector('.mce-container iframe')
 const getMceDoc = () => getMceNode().contentDocument
 const getMceWin = () => getMceNode().contentWindow
 
+// 提高图标显示的速度
 // 需要配合合并工具来使用
 // ref https://www.zhangxinxu.com/sp/svgo/
 const loadSvgSprite = () => {
@@ -31,7 +32,7 @@ const loadSvgSprite = () => {
   document.querySelector('body').appendChild(el)
 }
 
-function loadCss (url, doc = document) {
+function loadCSS (url, doc = document) {
   let link = doc.createElement("link")
   link.rel = "stylesheet"
   link.type = "text/css"
@@ -40,7 +41,7 @@ function loadCss (url, doc = document) {
   head.appendChild(link)
 }
 
-let loadJs = (url, doc = document) => {
+let loadJS = (url, doc = document) => {
   let script = doc.createElement("script")
   script.byebj = true
   script.type = "text/javascript"
@@ -49,26 +50,24 @@ let loadJs = (url, doc = document) => {
   head.appendChild(script)
 }
 
-function createEl (className, nodeName = '', style = '') {
+function createEl (className = '', nodeName = '', style = '') {
   let el = document.createElement(nodeName || 'div')
-  el.className = className
+  if (className.length > 0) { el.className = className }
   if (style.length > 0) { el.style = style }
   return el
 }
 
-function createButton (src, className = '', tipText = '') {
+function createIconBtn (iconName, className = '', tipText = '') {
   // let img = createEl('', 'img')
   // img.src = getPath("icons/" + src + ".svg")
 
   let tbic = createEl('toolbar-button-icon-container')
   let db = createEl('dui-badge', 'span')
   let tbw = createEl('toolbar-button-wrapper ' + (className ? className : ''))
-  if (tipText.length > 0) {
-    tbw.title = tipText
-  }
+  if (tipText.length > 0) { tbw.title = tipText }
 
   // tbic.appendChild(img)
-  tbic.innerHTML = '<svg class="icon-sprite"><use xlink:href="#' + src + '"/></svg>'
+  tbic.innerHTML = '<svg class="icon-sprite"><use href="#' + iconName + '"/></svg>'
   db.appendChild(tbic)
   tbw.appendChild(db)
 
@@ -153,7 +152,7 @@ class UndoButton extends BaseButton {
     this.render()
   }
   render () {
-    this.el = createButton('undo', 'disabled', '撤销')
+    this.el = createIconBtn('undo', 'disabled', '撤销')
 
     this.el.addEventListener('click', function () {
       tinyMCE.activeEditor.execCommand('undo')
@@ -179,7 +178,7 @@ class RedoButton extends BaseButton {
     this.render()
   }
   render () {
-    this.el = createButton('redo', 'disabled', '重做')
+    this.el = createIconBtn('redo', 'disabled', '重做')
     this.el.addEventListener('click', function () {
       tinyMCE.activeEditor.execCommand('redo')
     })
@@ -204,7 +203,7 @@ class RfButton extends BaseButton {
     this.render()
   }
   render () {
-    this.el = createButton('clear', null, '清除格式')
+    this.el = createIconBtn('clear', null, '清除格式')
     this.el.addEventListener('click', function () {
       tinyMCE.activeEditor.execCommand('removeformat')
     })
@@ -218,7 +217,7 @@ class HightlightButton extends BaseButton {
     this.render()
   }
   render () {
-    this.el = createButton('highlight', null, '文字高亮')
+    this.el = createIconBtn('highlight', null, '突出显示')
     this.el.addEventListener('click', function () {
       tinyMCE.activeEditor.execCommand('hilitecolor', false, 'yellow')
     })
@@ -280,8 +279,6 @@ class TitleButton extends BaseButton {
       tinyMCE.activeEditor.execCommand('mceToggleFormat', false, 'p')
       this.closeDropdown()
     }))
-    // dropdown.addItem(new DropdownItem('标题', 'font-size: 22pt;' + tmpStr))
-    // dropdown.addItem(new DropdownItem('副标题', 'font-size: 16pt; color: rgb(132, 132, 132);' + tmpStr))
     dropdown.addItem(new DropdownItem('标题1', 'font-size: 22pt;' + tmpStr, () => {
       tinyMCE.activeEditor.execCommand('mceToggleFormat', false, 'h1')
       this.closeDropdown()
@@ -351,7 +348,7 @@ class PreviewButton extends BaseButton {
     this.render()
   }
   render () {
-    this.el = createButton('print', null, '打印预览')
+    this.el = createIconBtn('print', null, '打印预览')
     this.el.addEventListener('click', this.preview)
   }
   preview () {
@@ -375,7 +372,7 @@ class ScreenshotButton extends BaseButton {
     this.render()
   }
   render () {
-    this.el = createButton('screenshot', null, '截图')
+    this.el = createIconBtn('screenshot', null, '文档截图')
     this.el.addEventListener('click', this.exportImage)
   }
   exportImage () {
@@ -390,7 +387,7 @@ class ScreenshotButton extends BaseButton {
 
       const alink = document.createElement('a')
       alink.href = dataImg.src
-      alink.download = '印象笔记·截图.jpg'
+      alink.download = '印象笔记·截图.png'
       alink.click()
 
       document.body.removeChild(canvas)
@@ -406,10 +403,10 @@ class HelpButton extends BaseButton {
     this.render()
   }
   render () {
-    this.el = createButton('help', null, '帮助')
-    this.el.addEventListener('click', this.gotohelp)
+    this.el = createIconBtn('help', null, '帮助')
+    this.el.addEventListener('click', this.gotoHelp)
   }
-  gotohelp () {
+  gotoHelp () {
     var url = 'https://github.com/topcss/EvernoteExtension'
     var param = { rd: 1 };
     openPage(url, param);
@@ -439,7 +436,7 @@ class FormatPainterButton extends BaseButton {
   }
   //#region 事件处理
   render () {
-    this.el = createButton('brush', null, '格式刷，双击可重复使用')
+    this.el = createIconBtn('brush', null, '格式刷，双击可重复使用')
     this.el.addEventListener('click', this.toggleOnce.bind(this))
     this.el.addEventListener('dblclick', this.toggleRepeately.bind(this))
   }
@@ -786,7 +783,7 @@ function addToolbar () {
   subject.addSub(wcBtn)
 
   // 载入css
-  loadCss(getPath('style.css'))
+  loadCSS(getPath('style.css'))
 
   // 追加到 body
   document.querySelector('body').appendChild(toolbar.el)
@@ -800,10 +797,10 @@ function addToolbar () {
   });
 
   // 用于支持格式刷的鼠标样式
-  loadCss(getPath('tinymce.css'), getMceDoc())
+  loadCSS(getPath('tinymce.css'), getMceDoc())
 
   // 用于截图
-  loadJs(getPath('html2canvas.min.js'), getMceDoc())
+  loadJS(getPath('html2canvas.min.js'), getMceDoc())
 }
 
 // main

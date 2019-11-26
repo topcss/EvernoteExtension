@@ -804,10 +804,20 @@ function addToolbar () {
 }
 
 // main
-const interval = setInterval(() => {
-  if (tinymce !== undefined && tinymce.activeEditor !== null) {
-    clearInterval(interval)
-    addToolbar()
+if (location.host.includes('yinxiang.com') || // 印象笔记官网
+  location.host.includes('topcss.github.io') || // 演示页面
+  !location.href.includes('http')) { // 本地开发
+
+  const interval = setInterval(() => {
+    if (tinymce !== undefined && tinymce.activeEditor !== null) {
+      clearInterval(interval)
+      addToolbar()
+    }
+  }, 20)
+
+} else {
+  if (confirm('印象笔记插件需要在 yinxiang.com 域名中使用，要打开该网站吗？')) {
+    openPage('https://app.yinxiang.com/Login.action')
   }
-}, 20)
+}
 //#endregion

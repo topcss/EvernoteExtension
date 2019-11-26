@@ -353,7 +353,7 @@ class PreviewButton extends BaseButton {
   }
   preview () {
     try {
-      let html = getMceDoc().body.innerHTML;
+      let html = getMceDoc().body.innerHTML + '<script>window.print()</script>'
       var mainView = window.open('', "mainView");
       var doc = mainView.document;
       doc.write(html);

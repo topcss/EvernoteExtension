@@ -6,7 +6,11 @@
  */
 (() => {
   // 避免重复加载
-  if (window.EvernoteExtensionInstance === true) { return; }
+  if (window.EvernoteExtensionInstance === true) {
+    // 清理刚刚新增的这个script节点
+    document.getElementsByTagName('body')[0].firstChild.remove()
+    return;
+  }
 
   //#region Common
   Object.assign(Number.prototype, {

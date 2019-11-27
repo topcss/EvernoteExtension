@@ -2,7 +2,7 @@
 
 为印象笔记网页版加入若干的新功能。更多功能，陆续更新中。
 
-[戳这里，查看demo (请用chrome浏览器预览)](https://topcss.github.io/EvernoteExtension/demo.html) 
+[戳这里，查看demo (请用chrome浏览器预览)](https://topcss.github.io/EvernoteExtension/demo.html)  | `源代码`请切换到 [gh-pages 分支](https://github.com/topcss/EvernoteExtension/tree/gh-pages) 查看
 
 ![印象笔记插件效果图.png](https://upload-images.jianshu.io/upload_images/1694032-5c589fd588ca7226.png)
 
